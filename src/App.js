@@ -1,8 +1,9 @@
 import React from "react";
 import { Flex, Box } from "@rebass/grid";
 import styled from "styled-components";
-import { width, space, color, fontSize } from "styled-system";
+import { width, space, color, fontSize, style } from "styled-system";
 import "./App.css";
+import Input from "./components/Input";
 
 const players = [
   {
@@ -53,18 +54,19 @@ function App() {
       flexDirection="column"
       alignItems="center"
       mx="auto"
+      p="15px"
       css={{ maxWidth: 980 }}
     >
       <h1>NBA Player Statistics</h1>
       <AddPlayerInput />
-      <StyledPlayerList mt={50} players={players} />
+      <StyledPlayerList mt={["10px", "40px"]} players={players} />
     </Flex>
   );
 }
 
 function PlayerImage(props) {
   return (
-    <Flex bg="#22398d" alignItems="flex-end" p={10}>
+    <Flex bg="#22398d" alignItems="flex-end" justifyContent="center" p={10}>
       <img src="https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/1610612742/2018/260x190/1629029.png" />
     </Flex>
   );
@@ -99,16 +101,17 @@ function StatBox({ className, style, statName, value }) {
     <Flex
       flexDirection="column"
       alignItems="center"
+      width={["55px", "65px"]}
       css={{
         borderRadius: 10,
-        border: "1px solid black",
-        width: "65px"
+        border: "1px solid black"
       }}
       className={className}
       style={style}
     >
       <Box
-        py="8px"
+        py={["4px", "8px"]}
+        fontSize={["14px", "20px"]}
         css={{
           textAlign: "center",
           width: "100%",
@@ -119,9 +122,10 @@ function StatBox({ className, style, statName, value }) {
         {statName}
       </Box>
       <Flex
-        py="10px"
+        py={["6px", "10px"]}
         alignItems="center"
-        css={{ fontSize: "26px", fontWeight: "200" }}
+        fontSize={["14px", "26px"]}
+        css={{ fontWeight: "200" }}
       >
         {value}
       </Flex>
@@ -170,12 +174,13 @@ function PlayerStats({ className, style, ...otherProps }) {
 
 const PlayerInfoHeader = styled.h2`
   ${fontSize}
+  ${space}
 `;
 
 function PlayerInfo({ name, position, team, age }) {
   return (
     <div>
-      <PlayerInfoHeader fontSize={[20, 26]}>
+      <PlayerInfoHeader ml="8px" my="12px" fontSize={["20px", "30px"]}>
         {name} ({age} years) - {position}
       </PlayerInfoHeader>
     </div>
@@ -195,6 +200,7 @@ function PlayerCard({ className, style, ...otherProps }) {
       }}
       className={className}
       style={style}
+      flexDirection={["column", "row"]}
     >
       <TeamFlag {...otherProps.playerInfo} />
       <PlayerImage />
@@ -227,7 +233,7 @@ function PlayerList({ players, className, style }) {
     >
       {players.map((player, idx) => (
         <StyledPlayerCard
-          mt={idx !== 0 ? 20 : null}
+          mt={idx !== 0 ? ["30px", "40px"] : null}
           key={player.playerInfo.name}
           {...player}
         />
@@ -236,12 +242,19 @@ function PlayerList({ players, className, style }) {
   );
 }
 
-const Input = styled.input`
+const StyledInput = styled(Input)`
   ${width}
+  ${fontSize}
 `;
 
 function AddPlayerInput(props) {
-  return <Input width={1} />;
+  return (
+    <StyledInput
+      placeholder="Search for NBA player..."
+      fontSize="26px"
+      width={1}
+    />
+  );
 }
 
 const DeleteIcon = ({ width = "348.333px", height = width, className }) => {
@@ -263,6 +276,19 @@ const DeleteIcon = ({ width = "348.333px", height = width, className }) => {
   );
 };
 
+const fill = style({
+  // React prop name
+  prop: "fill",
+  // The corresponding CSS property (defaults to prop argument)
+  cssProperty: "fill",
+  // key for theme values
+  key: "fills"
+});
+
+const StyleDeleteIcon = styled(DeleteIcon)`
+  ${fill}
+`;
+
 function RemovePlayerButton(props) {
   return (
     <Flex
@@ -270,7 +296,7 @@ function RemovePlayerButton(props) {
       p="8px"
       css={{ position: "absolute", top: 0, right: 0, cursor: "pointer" }}
     >
-      <DeleteIcon width="12px" />
+      <StyleDeleteIcon fill={["white", "black"]} width="12px" />
     </Flex>
   );
 }
