@@ -11,9 +11,13 @@ const StyledInput = styled(Input)`
   ${fontSize}
 `;
 
-export default function AddPlayerInput(props) {
+export default function AddPlayerInput({ addPlayer }) {
   const [searchString, setSearchString] = useState("");
   const players = usePlayerSearch(searchString);
+  const handlePlayerChosen = id => {
+    addPlayer(id);
+    setSearchString("");
+  };
   return (
     <Flex flexDirection="column" width="100%" css={{ position: "relative" }}>
       <StyledInput
@@ -23,7 +27,10 @@ export default function AddPlayerInput(props) {
         value={searchString}
         onChange={event => setSearchString(event.target.value)}
       />
-      <PlayerResultList players={players} />
+      <PlayerResultList
+        players={players}
+        handlePlayerChosen={handlePlayerChosen}
+      />
     </Flex>
   );
 }
@@ -50,7 +57,7 @@ function usePlayerSearch(searchString) {
   return players;
 }
 
-function PlayerResultList({ players }) {
+function PlayerResultList({ players, handlePlayerChosen }) {
   const [showList, setShowList] = useState(
     players !== null && players.length > 0
   );
@@ -66,6 +73,10 @@ function PlayerResultList({ players }) {
   );
   const ref = useRef();
   useOnClickOutside(ref, () => setShowList(false));
+  const handlePlayerResultClicked = id => {
+    handlePlayerChosen(id);
+    setShowList(false);
+  };
   return showList ? (
     <Flex
       ref={ref}
@@ -83,7 +94,12 @@ function PlayerResultList({ players }) {
       flexDirection="column"
     >
       {players.map((player, idx) => (
-        <PlayerResult idx={idx} key={player.name} {...player} />
+        <PlayerResult
+          onClick={() => handlePlayerResultClicked(player.name)}
+          idx={idx}
+          key={player.name}
+          {...player}
+        />
       ))}
     </Flex>
   ) : null;
@@ -98,7 +114,7 @@ const PlayerAvatar = styled.img`
   ${color}
 `;
 
-function PlayerResult({ image, name, team, idx }) {
+function PlayerResult({ onClick, image, name, team, idx }) {
   return (
     <Flex
       px="20px"
@@ -107,6 +123,7 @@ function PlayerResult({ image, name, team, idx }) {
       css={{
         borderTop: idx === 0 ? "0" : "1px solid #d4d4d5"
       }}
+      onClick={onClick}
     >
       <PlayerAvatar bg="#22398d" width="50px" height="50px" src={image} />
       <Box ml="20px" fontSize="20px">

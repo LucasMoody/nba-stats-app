@@ -21,7 +21,7 @@ function App() {
       css={{ maxWidth: 980 }}
     >
       <h1>NBA Player Statistics</h1>
-      <AddPlayerInput />
+      <AddPlayerInput addPlayer={console.log} />
       <StyledPlayerList mt={["10px", "40px"]} players={demoPlayers} />
     </Flex>
   );
