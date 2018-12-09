@@ -76,7 +76,7 @@ function TeamFlag({ className, style, team }) {
 
 function PlayerImage({ image }) {
   return (
-    <Flex bg="#22398d" alignItems="flex-end" justifyContent="center" p={10}>
+    <Flex bg="#002f52" alignItems="flex-end" justifyContent="center" p={10}>
       <img src={image} alt="" />
     </Flex>
   );
