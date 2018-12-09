@@ -4,7 +4,8 @@ import { width, height, color, fontSize } from "styled-system";
 import { Flex, Box } from "@rebass/grid";
 import styled from "styled-components";
 import Input from "./Input";
-import demoPlayers from "../demoPlayers";
+import api from "../api/";
+import { getPlayerImageSrc } from "../utils/playerUtils";
 
 const StyledInput = styled(Input)`
   ${width}
@@ -39,14 +40,12 @@ function usePlayerSearch(searchString) {
   const [players, setPlayers] = useState([]);
   useEffect(
     () => {
-      if (searchString !== null && searchString !== "") {
-        setPlayers(
-          demoPlayers
-            .map(player => player.playerInfo)
-            .filter(player =>
-              player.name.toUpperCase().includes(searchString.toUpperCase())
-            )
-        );
+      if (
+        searchString !== null &&
+        searchString !== "" &&
+        searchString.length > 2
+      ) {
+        api.searchForPlayer(searchString).then(setPlayers);
       } else {
         setPlayers([]);
       }
@@ -114,7 +113,7 @@ const PlayerAvatar = styled.img`
   ${color}
 `;
 
-function PlayerResult({ onClick, image, name, team, idx }) {
+function PlayerResult({ onClick, teamId, playerId, name, team, idx }) {
   return (
     <Flex
       px="20px"
@@ -125,7 +124,12 @@ function PlayerResult({ onClick, image, name, team, idx }) {
       }}
       onClick={onClick}
     >
-      <PlayerAvatar bg="#22398d" width="50px" height="50px" src={image} />
+      <PlayerAvatar
+        bg="#22398d"
+        width="50px"
+        height="50px"
+        src={getPlayerImageSrc(teamId, playerId)}
+      />
       <Box ml="20px" fontSize="20px">
         {name}
       </Box>
