@@ -12,16 +12,20 @@ const StyledInput = styled(Input)`
   ${fontSize}
 `;
 
-export default function AddPlayerInput({ addPlayer }) {
+export default function AddPlayerInput() {
   const [searchString, setSearchString] = useState("");
   const players = usePlayerSearch(searchString);
   const handlePlayerChosen = id => {
-    addPlayer(id);
+    api.addPlayer(id);
     setSearchString("");
   };
+  const inputRef = useRef();
+  const isInputFocused = useIsInputFocused(inputRef);
+
   return (
     <Flex flexDirection="column" width="100%" css={{ position: "relative" }}>
       <StyledInput
+        ref={inputRef}
         placeholder="Search for NBA player..."
         fontSize="26px"
         width={1}
@@ -29,6 +33,7 @@ export default function AddPlayerInput({ addPlayer }) {
         onChange={event => setSearchString(event.target.value)}
       />
       <PlayerResultList
+        showList={isInputFocused}
         players={players}
         handlePlayerChosen={handlePlayerChosen}
       />
@@ -56,19 +61,34 @@ function usePlayerSearch(searchString) {
   return players;
 }
 
-function PlayerResultList({ players, handlePlayerChosen }) {
-  const [showList, setShowList] = useState(
-    players !== null && players.length > 0
+function useIsInputFocused(ref) {
+  const [isFocused, setIsFocused] = useState(false);
+  useEffect(
+    () => {
+      if (ref.current) {
+        const handleOnFocus = () => setIsFocused(true);
+        ref.current.addEventListener("focusin", handleOnFocus);
+        return () => ref.current.removeEventListener("focusin", handleOnFocus);
+      }
+    },
+    [ref.current]
+  );
+  return isFocused;
+}
+
+function PlayerResultList({ showList, players, handlePlayerChosen }) {
+  const [_showList, setShowList] = useState(
+    showList || (players !== null && players.length > 0)
   );
   useEffect(
     () => {
-      if (players !== null && players.length > 0) {
+      if (showList && players !== null && players.length > 0) {
         setShowList(true);
       } else {
         setShowList(false);
       }
     },
-    [players]
+    [players, showList]
   );
   const ref = useRef();
   useOnClickOutside(ref, () => setShowList(false));
@@ -76,7 +96,7 @@ function PlayerResultList({ players, handlePlayerChosen }) {
     handlePlayerChosen(id);
     setShowList(false);
   };
-  return showList ? (
+  return _showList ? (
     <Flex
       ref={ref}
       mt="10px"
@@ -94,9 +114,9 @@ function PlayerResultList({ players, handlePlayerChosen }) {
     >
       {players.map((player, idx) => (
         <PlayerResult
-          onClick={() => handlePlayerResultClicked(player.name)}
+          onClick={() => handlePlayerResultClicked(player.playerId)}
           idx={idx}
-          key={player.name}
+          key={player.playerId}
           {...player}
         />
       ))}
@@ -120,7 +140,8 @@ function PlayerResult({ onClick, teamId, playerId, name, team, idx }) {
       py="15px"
       alignItems="center"
       css={{
-        borderTop: idx === 0 ? "0" : "1px solid #d4d4d5"
+        borderTop: idx === 0 ? "0" : "1px solid #d4d4d5",
+        cursor: "pointer"
       }}
       onClick={onClick}
     >

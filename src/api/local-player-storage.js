@@ -2,16 +2,18 @@ export function getFavoritePlayers() {
   return JSON.parse(localStorage.getItem("favoritePlayers"));
 }
 
-export function addFavoritePlayer(playerId) {
+export function addPlayerToFavorites(playerId) {
   let favoritePlayers = getFavoritePlayers();
   if (!favoritePlayers) {
     favoritePlayers = [];
   }
-  favoritePlayers.push(playerId);
-  setFavoritePlayers(favoritePlayers);
+  if (!favoritePlayers.includes(playerId)) {
+    favoritePlayers.push(playerId);
+    setFavoritePlayers(favoritePlayers);
+  }
 }
 
-export function removeFavoritePlayer(playerId) {
+export function removePlayerFromFavorites(playerId) {
   const favoritePlayers = getFavoritePlayers();
   setFavoritePlayers(favoritePlayers.filter(id => id !== playerId));
 }
@@ -21,6 +23,6 @@ function setFavoritePlayers(players) {
 }
 
 export default {
-  addFavoritePlayer,
-  removeFavoritePlayer
+  addPlayerToFavorites,
+  removePlayerFromFavorites
 };
