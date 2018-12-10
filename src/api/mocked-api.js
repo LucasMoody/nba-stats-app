@@ -13,11 +13,11 @@ export async function searchForPlayer(searchTerm) {
 }
 
 export function addPlayer(playerId) {
-  return localStorage.addPlayer(playerId);
+  return localStorage.addPlayerToFavorites(playerId);
 }
 
 export function removePlayer(playerId) {
-  return localStorage.removePlayer(playerId);
+  return localStorage.removeFavoritePlayer(playerId);
 }
 
 export function getStatsForPlayer(playerId) {
@@ -31,6 +31,7 @@ export function getStatsforPlayers(playerId) {
 export default {
   getAllPlayers,
   searchForPlayer,
+  addPlayer,
   removePlayer,
   getStatsForPlayer,
   getStatsforPlayers

@@ -24,10 +24,14 @@ const Input = styled.input`
   box-sizing: border-box;
 `;
 
-export default function({ value, onChange, className, placeholder }) {
+export default React.forwardRef(function(
+  { value, onChange, className, placeholder },
+  ref
+) {
   return (
     <div className={className}>
       <Input
+        ref={ref}
         fontSize="14px"
         lineHeight="30px"
         placeholder={placeholder}
@@ -41,4 +45,4 @@ export default function({ value, onChange, className, placeholder }) {
       />
     </div>
   );
-}
+});
