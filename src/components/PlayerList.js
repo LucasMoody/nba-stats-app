@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { fill } from "../utils/style";
 import { space, fontSize } from "styled-system";
 import { Flex, Box } from "@rebass/grid";
 import styled from "styled-components";
+import { getPlayerImageSrc, getDecimalAge } from "../utils/playerUtils";
+import api from "../api";
 
 const StyledPlayerCard = styled(PlayerCard)`
   ${space}
 `;
 
 export default function PlayerList({ players, className, style }) {
-  return (
+  return players ? (
     <Flex
       className={className}
       style={style}
@@ -19,15 +21,19 @@ export default function PlayerList({ players, className, style }) {
       {players.map((player, idx) => (
         <StyledPlayerCard
           mt={idx !== 0 ? ["30px", "40px"] : null}
-          key={player.playerInfo.name}
+          key={player.playerInformation.playerId}
           {...player}
         />
       ))}
     </Flex>
+  ) : (
+    <div>loading...</div>
   );
 }
 
 function PlayerCard({ className, style, ...otherProps }) {
+  const { playerId, teamId } = otherProps.playerInformation;
+  const imageSrc = getPlayerImageSrc(teamId, playerId);
   return (
     <Flex
       bg="#f5f5f5"
@@ -42,10 +48,10 @@ function PlayerCard({ className, style, ...otherProps }) {
       style={style}
       flexDirection={["column", "row"]}
     >
-      <TeamFlag {...otherProps.playerInfo} />
-      <PlayerImage image={otherProps.playerInfo.image} />
+      <TeamFlag {...otherProps.playerInformation} />
+      <PlayerImage image={imageSrc} />
       <PlayerCardContent {...otherProps} />
-      <RemovePlayerButton />
+      <RemovePlayerButton {...otherProps.playerInformation} />
     </Flex>
   );
 }
@@ -57,7 +63,7 @@ const TeamFlagContainer = styled(Flex)`
   top: 0;
 `;
 
-function TeamFlag({ className, style, team }) {
+function TeamFlag({ className, style, teamCity, teamName }) {
   return (
     <TeamFlagContainer
       bg="black"
@@ -69,7 +75,7 @@ function TeamFlag({ className, style, team }) {
       alignItems="center"
       css={{ borderTopLeftRadius: 10, borderBottomRightRadius: 10 }}
     >
-      {team}
+      {teamCity} {teamName}
     </TeamFlagContainer>
   );
 }
@@ -82,10 +88,10 @@ function PlayerImage({ image }) {
   );
 }
 
-function PlayerCardContent({ playerInfo, playerStats }) {
+function PlayerCardContent({ playerInformation, playerStats }) {
   return (
     <Flex flexDirection="column" p={10} css={{ width: "100%" }}>
-      <PlayerInfo {...playerInfo} />
+      <PlayerInfo {...playerInformation} />
       <PlayerStats {...playerStats} />
     </Flex>
   );
@@ -96,27 +102,30 @@ const PlayerInfoHeader = styled.h2`
   ${space}
 `;
 
-function PlayerInfo({ name, position, team, age }) {
+function PlayerInfo({ firstName, lastName, position, birthDate }) {
+  const decimalAge = useMemo(() => getDecimalAge(birthDate).toFixed(1), [
+    birthDate
+  ]);
   return (
     <div>
       <PlayerInfoHeader ml="8px" my="12px" fontSize={["20px", "30px"]}>
-        {name} ({age} years) - {position}
+        {firstName} {lastName} ({decimalAge} years) - {position}
       </PlayerInfoHeader>
     </div>
   );
 }
 
-function PlayerStats({ className, style, ...otherProps }) {
+function PlayerStats({ className, style, ...stats }) {
   const {
-    pointsPerGame,
-    reboundsPerGame,
-    assistsPerGame,
+    points,
+    rebounds,
+    assists,
     effectiveFieldGoalPercentage,
-    stealsPerGame,
-    blocksPerGame,
+    steals,
+    blocks,
     threePointPercentage,
     freeThrowPercentage
-  } = otherProps;
+  } = stats;
 
   return (
     <Flex
@@ -125,18 +134,26 @@ function PlayerStats({ className, style, ...otherProps }) {
       style={style}
       flexWrap="wrap"
     >
-      <StyledStatBox m="8px" statName="PTS" value={pointsPerGame} />
-      <StyledStatBox m="8px" statName="REB" value={reboundsPerGame} />
-      <StyledStatBox m="8px" statName="AST" value={assistsPerGame} />
+      <StyledStatBox m="8px" statName="PTS" value={points.toFixed(1)} />
+      <StyledStatBox m="8px" statName="REB" value={rebounds.toFixed(1)} />
+      <StyledStatBox m="8px" statName="AST" value={assists.toFixed(1)} />
       <StyledStatBox
         m="8px"
         statName="EFG%"
-        value={effectiveFieldGoalPercentage}
+        value={(effectiveFieldGoalPercentage * 100).toFixed(1)}
       />
-      <StyledStatBox m="8px" statName="STL" value={stealsPerGame} />
-      <StyledStatBox m="8px" statName="BLK" value={blocksPerGame} />
-      <StyledStatBox m="8px" statName="3PT%" value={threePointPercentage} />
-      <StyledStatBox m="8px" statName="FT%" value={freeThrowPercentage} />
+      <StyledStatBox m="8px" statName="STL" value={steals.toFixed(1)} />
+      <StyledStatBox m="8px" statName="BLK" value={blocks.toFixed(1)} />
+      <StyledStatBox
+        m="8px"
+        statName="3PT%"
+        value={(threePointPercentage * 100).toFixed(1)}
+      />
+      <StyledStatBox
+        m="8px"
+        statName="FT%"
+        value={(freeThrowPercentage * 100).toFixed(1)}
+      />
     </Flex>
   );
 }
@@ -182,12 +199,13 @@ function StatBox({ className, style, statName, value }) {
   );
 }
 
-function RemovePlayerButton(props) {
+function RemovePlayerButton({ playerId }) {
   return (
     <Flex
       m="2px"
       p="8px"
       css={{ position: "absolute", top: 0, right: 0, cursor: "pointer" }}
+      onClick={() => api.removePlayer(playerId)}
     >
       <StyleDeleteIcon fill={["white", "black"]} width="12px" />
     </Flex>

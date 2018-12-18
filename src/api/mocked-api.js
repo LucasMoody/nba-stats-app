@@ -1,4 +1,5 @@
 import players from "./mockedData/players.json";
+import playerStats from "./mockedData/playerStats.json";
 import localStorage from "./local-player-storage";
 
 export function getAllPlayers() {
@@ -17,15 +18,24 @@ export function addPlayer(playerId) {
 }
 
 export function removePlayer(playerId) {
-  return localStorage.removeFavoritePlayer(playerId);
+  return localStorage.removePlayerFromFavorites(playerId);
 }
 
-export function getStatsForPlayer(playerId) {
-  return null;
+export async function getFavoritePlayers() {
+  const favoritePlayerIds = localStorage.getFavoritePlayers();
+  return getStatsforPlayers(favoritePlayerIds);
 }
 
-export function getStatsforPlayers(playerId) {
-  return null;
+export async function getStatsForPlayer(playerId) {
+  return playerStats.find(
+    player => player.playerInformation.playerId === playerId
+  );
+}
+
+export async function getStatsforPlayers(playerIds) {
+  return playerStats.filter(
+    player => playerIds.indexOf(player.playerInformation.playerId) !== -1
+  );
 }
 
 export default {
@@ -34,5 +44,6 @@ export default {
   addPlayer,
   removePlayer,
   getStatsForPlayer,
-  getStatsforPlayers
+  getStatsforPlayers,
+  getFavoritePlayers
 };

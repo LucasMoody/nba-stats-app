@@ -8,3 +8,9 @@ export function getPlayerImageSrc(teamId, playerId) {
     ".png"
   );
 }
+
+export function getDecimalAge(birthDate) {
+  const oneDay = 24 * 60 * 60 * 1000;
+  const days = (new Date() - Date.parse(birthDate)) / oneDay;
+  return days / 365;
+}
