@@ -23,6 +23,7 @@ function setFavoritePlayers(players) {
 }
 
 export default {
+  getFavoritePlayers,
   addPlayerToFavorites,
   removePlayerFromFavorites
 };
